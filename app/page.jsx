@@ -3,10 +3,22 @@ import { Footer } from "../components/footer";
 import { Zap, Shield, Bell, Link2 } from "lucide-react";
 import AuthButton from "@/components/AuthButton";
 import { createClient } from "@/lib/supabase/server";
+import { AddProductForm } from "@/components/AddProductForm";
+import { ProductCard } from "@/components/ProductCard";
 
 export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+
+  let products = [];
+  if (user) {
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false });
+    products = data || [];
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#FFFDF9] via-[#FFFAF2] to-[#FFF8EE] dark:from-[#0C0B0A] dark:via-[#141311] dark:to-[#080706] flex flex-col relative transition-colors duration-300">
       {/* Decorative background grid pattern */}
@@ -57,20 +69,54 @@ export default async function Home() {
           Track prices from any e-commerce site. Get instant alerts when prices drop. Save money effortlessly.
         </p>
 
-        {/* Search Input Bar */}
-        <div className="w-full max-w-2xl flex flex-col sm:flex-row gap-3 mt-10 relative">
-          <div className="flex-1 relative">
-            <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 h-5 w-5 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Paste product URL (Amazon, Walmart, etc.)"
-              className="w-full pl-12 pr-5 py-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:focus:ring-orange-500/10 focus:border-orange-500 dark:focus:border-orange-500 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-zinc-500 shadow-md shadow-orange-100/5 dark:shadow-black/5 hover:border-gray-300 dark:hover:border-zinc-700 transition-all text-base"
-            />
+        {/* Dynamic Search/Track Bar */}
+        <AddProductForm user={user} />
+
+        {/* Tracked Products Dashboard */}
+        {user ? (
+          <div className="w-full max-w-5xl mt-16 pt-8 border-t border-orange-100/20 dark:border-zinc-900/40">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-950 dark:text-gray-50 flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse" />
+                  Your Tracked Products
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Monitoring prices and notifying you of any drops.
+                </p>
+              </div>
+              <span className="text-xs bg-orange-50 dark:bg-orange-950/20 border border-orange-100/40 dark:border-orange-900/30 text-orange-600 dark:text-orange-400 font-bold px-3 py-1 rounded-full uppercase tracking-wider select-none">
+                {products.length} {products.length === 1 ? "Product" : "Products"}
+              </span>
+            </div>
+
+            {products.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-12 bg-white/50 dark:bg-zinc-900/20 backdrop-blur-xs border border-dashed border-gray-200 dark:border-zinc-800 rounded-3xl text-center max-w-2xl mx-auto shadow-xs">
+                <div className="w-12 h-12 rounded-full bg-orange-50 dark:bg-orange-950/30 flex items-center justify-center text-orange-500 dark:text-orange-400 mb-4">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                </div>
+                <h3 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-2">No tracked products yet</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm max-w-sm">
+                  Paste a product link from Amazon, Walmart, or any e-commerce site above to start tracking.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            )}
           </div>
-          <button className="px-8 py-4 bg-orange-500 hover:bg-orange-600 dark:bg-orange-500 dark:hover:bg-orange-600 text-white font-bold rounded-2xl transition-colors duration-200 shadow-md shadow-orange-500/10 dark:shadow-orange-500/5 whitespace-nowrap text-base flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/50">
-            Track Price
-          </button>
-        </div>
+        ) : (
+          <div className="w-full max-w-xl mt-12 text-center p-6 bg-orange-50/10 border border-orange-100/10 rounded-2xl">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              💡 <span className="font-semibold text-gray-700 dark:text-gray-300">Sign in</span> to view your personal price tracking dashboard and save products.
+            </p>
+          </div>
+        )}
 
         {/* Feature Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full mt-24 pb-16">
