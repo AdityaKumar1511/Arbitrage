@@ -14,9 +14,22 @@ export default async function Home() {
   if (user) {
     const { data } = await supabase
       .from("products")
-      .select("*")
+      .select(`
+        *,
+        price_history (
+          price,
+          currency,
+          checked_at
+        )
+      `)
       .order("created_at", { ascending: false });
-    products = data || [];
+      
+    products = (data || []).map(p => {
+      if (p.price_history) {
+        p.price_history = p.price_history.sort((a, b) => new Date(a.checked_at) - new Date(b.checked_at));
+      }
+      return p;
+    });
   }
 
   return (
@@ -103,7 +116,7 @@ export default async function Home() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
