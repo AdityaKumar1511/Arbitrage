@@ -18,10 +18,10 @@ SECURITY DEFINER
 AS $$
 BEGIN
   PERFORM net.http_post(
-    url := 'YOUR_APP_URL/api/cron/check-prices',
+    url := 'https://arbitrage-henna.vercel.app/api/cron/check-prices',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
-      'Authorization', 'Bearer YOUR_CRON_SECRET'
+      'Authorization', 'Bearer 2ada59aa92c9c8b8563ae971929fc4f3adb0dfe12ba26021e82b8c8ba221a3eb'
     )
   );
 END;
