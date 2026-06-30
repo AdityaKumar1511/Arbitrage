@@ -1,8 +1,8 @@
 import { Resend } from "resend";
 
-let _resend = null;
+let _resend: Resend | null = null;
 
-function getResend() {
+function getResend(): Resend {
   if (!_resend) {
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
@@ -13,14 +13,26 @@ function getResend() {
   return _resend;
 }
 
+export interface EmailProductInfo {
+  name: string;
+  currency: string;
+  url: string;
+  img_url?: string | null;
+}
+
 /**
  * Sends a price drop alert email to the user.
- * @param {string} to - Recipient email address
- * @param {object} product - Product details
- * @param {number} oldPrice - Previous price
- * @param {number} newPrice - New (lower) price
+ * @param to - Recipient email address
+ * @param product - Product details
+ * @param oldPrice - Previous price
+ * @param newPrice - New (lower) price
  */
-export async function sendPriceDropEmail(to, product, oldPrice, newPrice) {
+export async function sendPriceDropEmail(
+  to: string,
+  product: EmailProductInfo,
+  oldPrice: number,
+  newPrice: number
+): Promise<{ success: boolean; id?: string; error?: string }> {
   const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const currencySymbol = getCurrencySymbol(product.currency);
@@ -138,13 +150,13 @@ export async function sendPriceDropEmail(to, product, oldPrice, newPrice) {
 
     console.log(`Price drop email sent to ${to} for "${product.name}" (ID: ${data?.id})`);
     return { success: true, id: data?.id };
-  } catch (err) {
+  } catch (err: any) {
     console.error("Failed to send price drop email:", err);
     return { success: false, error: err.message };
   }
 }
 
-function getCurrencySymbol(code) {
+function getCurrencySymbol(code: string): string {
   switch (code?.toUpperCase()) {
     case "USD": return "$";
     case "EUR": return "€";

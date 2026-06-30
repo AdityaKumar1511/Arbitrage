@@ -6,8 +6,13 @@ import { LogIn, LogOut } from "lucide-react";
 import { AuthModal } from "./AuthModal";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
 
-const AuthButton = ({ user }) => {
+interface AuthButtonProps {
+  user: User | null;
+}
+
+export function AuthButton({ user }: AuthButtonProps) {
   const [showAuthModel, setShowAuthModel] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -77,6 +82,6 @@ const AuthButton = ({ user }) => {
       />
     </>
   );
-};
+}
 
 export default AuthButton;

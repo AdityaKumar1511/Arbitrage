@@ -4,13 +4,18 @@ import React, { useState, useEffect } from "react";
 import { Link2, Loader2, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
 import { addProduct } from "@/app/actions";
 import { AuthModal } from "./AuthModal";
+import type { User } from "@supabase/supabase-js";
 
-export function AddProductForm({ user }) {
+interface AddProductFormProps {
+  user: User | null;
+}
+
+export function AddProductForm({ user }: AddProductFormProps) {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("Connecting to store...");
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [message, setMessage] = useState(null); // { type: 'success' | 'error', text: string }
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Cycle through engaging scraping messages to keep the user updated during the 5-10s scrape time
   useEffect(() => {
@@ -35,7 +40,7 @@ export function AddProductForm({ user }) {
     return () => clearInterval(interval);
   }, [loading]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
 
@@ -72,7 +77,7 @@ export function AddProductForm({ user }) {
           });
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       setMessage({
         type: "error",
         text: err.message || "An unexpected network error occurred."

@@ -13,7 +13,29 @@ import {
   CartesianGrid,
 } from "recharts";
 
-export function ProductCard({ product }) {
+interface PriceHistoryEntry {
+  price: number;
+  currency: string;
+  checked_at: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  url: string;
+  current_price: number;
+  currency: string;
+  img_url?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  price_history?: PriceHistoryEntry[];
+}
+
+interface ProductCardProps {
+  product: Product;
+}
+
+export function ProductCard({ product }: ProductCardProps) {
   const [isPending, startTransition] = useTransition();
   const [showChart, setShowChart] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -23,7 +45,7 @@ export function ProductCard({ product }) {
     setMounted(true);
   }, []);
 
-  const getCurrencySymbol = (code) => {
+  const getCurrencySymbol = (code: string) => {
     switch (code?.toUpperCase()) {
       case "USD":
         return "$";
@@ -93,7 +115,7 @@ export function ProductCard({ product }) {
       month: "numeric",
       day: "numeric",
     }),
-    price: h.price,
+    price: Number(h.price),
     rawDate: new Date(h.checked_at).toLocaleDateString(undefined, {
       month: "short",
       day: "numeric",
@@ -102,14 +124,14 @@ export function ProductCard({ product }) {
   }));
 
   // Premium, theme-friendly custom tooltip component
-  const CustomTooltip = ({ active, payload }) => {
+  const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white dark:bg-zinc-950 border border-gray-100 dark:border-zinc-800 p-2.5 rounded-xl shadow-md text-[11px] font-medium leading-normal">
           <p className="text-gray-400 dark:text-zinc-500">{payload[0].payload.rawDate}</p>
           <p className="text-orange-500 dark:text-orange-400 font-bold mt-0.5">
             Price: {getCurrencySymbol(product.currency)}
-            {payload[0].value.toLocaleString()}
+            {Number(payload[0].value).toLocaleString()}
           </p>
         </div>
       );
@@ -132,10 +154,11 @@ export function ProductCard({ product }) {
               alt={product.name}
               className="object-contain w-full h-full p-2 group-hover:scale-[1.04] transition-transform duration-500 ease-out select-none"
               loading="lazy"
-              onError={(e) => {
+              onError={(e: any) => {
                 e.target.onerror = null;
                 e.target.style.display = "none";
-                e.target.parentNode.querySelector(".fallback-icon").style.display = "flex";
+                const fallback = e.target.parentNode.querySelector(".fallback-icon");
+                if (fallback) fallback.style.display = "flex";
               }}
             />
           ) : null}
@@ -160,7 +183,7 @@ export function ProductCard({ product }) {
             <div className="flex items-baseline gap-1">
               <span className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
                 {getCurrencySymbol(product.currency)}
-                {product.current_price.toLocaleString(undefined, {
+                {Number(product.current_price).toLocaleString(undefined, {
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 2,
                 })}

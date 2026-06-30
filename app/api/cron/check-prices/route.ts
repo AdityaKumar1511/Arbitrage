@@ -1,22 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { scrapeProduct } from "@/lib/firecrawl";
 import { sendPriceDropEmail } from "@/lib/email";
 
-/**
- * POST /api/cron/check-prices
- * 
- * Automated cron endpoint that:
- * 1. Fetches ALL tracked products (using service role to bypass RLS)
- * 2. Re-scrapes each product via Firecrawl
- * 3. Compares old vs new price
- * 4. Updates the products table with the new price
- * 5. Inserts a new price_history record
- * 6. Sends email alert via Resend if the price dropped
- */
-export async function POST(request) {
+export async function POST(request: NextRequest) {
   try {
-    // Verify the cron secret to prevent unauthorized access
     const authHeader = request.headers.get("Authorization");
     const cronSecret = process.env.CRON_SECRET;
 
@@ -35,13 +23,11 @@ export async function POST(request) {
       );
     }
 
-    // Use service role client to bypass RLS and access all users' products
     const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // Fetch all products with their owner's email
     const { data: products, error: fetchError } = await supabase
       .from("products")
       .select("*");
@@ -68,13 +54,12 @@ export async function POST(request) {
     let checked = 0;
     let updated = 0;
     let alerts = 0;
-    const errors = [];
+    const errors: any[] = [];
 
     for (const product of products) {
       checked++;
 
       try {
-        // Re-scrape the product
         const scrapedData = await scrapeProduct(product.url);
 
         if (!scrapedData || scrapedData.currentPrice === undefined) {
@@ -82,10 +67,10 @@ export async function POST(request) {
           continue;
         }
 
-        const oldPrice = product.current_price;
+        const oldPrice = Number(product.current_price);
         const newPrice = scrapedData.currentPrice;
 
-        // Always insert a price_history record for the check
+        // Always insert history point
         await supabase.from("price_history").insert({
           product_id: product.id,
           price: newPrice,
@@ -93,7 +78,7 @@ export async function POST(request) {
           checked_at: new Date().toISOString(),
         });
 
-        // If price changed, update the product record
+        // Update target product if price changes
         if (newPrice !== oldPrice) {
           const { error: updateError } = await supabase
             .from("products")
@@ -113,9 +98,7 @@ export async function POST(request) {
 
           updated++;
 
-          // If price DROPPED, send email alert
           if (newPrice < oldPrice) {
-            // Look up the user's email
             const { data: userData } = await supabase.auth.admin.getUserById(product.user_id);
             const userEmail = userData?.user?.email;
 
@@ -141,7 +124,7 @@ export async function POST(request) {
           `Cron: [${checked}/${products.length}] "${product.name}" — ` +
           `${oldPrice} → ${newPrice} ${newPrice < oldPrice ? "↓ DROP" : newPrice > oldPrice ? "↑ UP" : "= SAME"}`
         );
-      } catch (scrapeErr) {
+      } catch (scrapeErr: any) {
         console.error(`Cron: Error processing "${product.name}":`, scrapeErr.message);
         errors.push({ id: product.id, name: product.name, error: scrapeErr.message });
       }
@@ -159,7 +142,7 @@ export async function POST(request) {
 
     console.log("Cron: Price check summary:", summary);
     return NextResponse.json(summary);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Cron: Unexpected error:", error);
     return NextResponse.json(
       { error: "Internal server error", details: error.message },

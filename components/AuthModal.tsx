@@ -11,9 +11,14 @@ import {
 import { Button } from "./ui/button";
 import { createClient } from "@/lib/supabase/client";
 
-export function AuthModal({ isOpen, onClose }) {
+interface AuthModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -27,7 +32,7 @@ export function AuthModal({ isOpen, onClose }) {
         },
       });
       if (error) throw error;
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || "Failed to initiate sign in");
       setLoading(false);
     }

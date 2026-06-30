@@ -1,16 +1,17 @@
 import { NavbarActions } from "../components/navbar-actions";
 import { Footer } from "../components/footer";
-import { Zap, Shield, Bell, Link2 } from "lucide-react";
+import { Zap, Shield, Bell } from "lucide-react";
 import AuthButton from "@/components/AuthButton";
 import { createClient } from "@/lib/supabase/server";
 import { AddProductForm } from "@/components/AddProductForm";
 import { ProductCard } from "@/components/ProductCard";
+import React from "react";
 
 export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  let products = [];
+  let products: any[] = [];
   if (user) {
     const { data } = await supabase
       .from("products")
@@ -24,9 +25,9 @@ export default async function Home() {
       `)
       .order("created_at", { ascending: false });
       
-    products = (data || []).map(p => {
+    products = (data || []).map((p: any) => {
       if (p.price_history) {
-        p.price_history = p.price_history.sort((a, b) => new Date(a.checked_at) - new Date(b.checked_at));
+        p.price_history = p.price_history.sort((a: any, b: any) => new Date(a.checked_at).getTime() - new Date(b.checked_at).getTime());
       }
       return p;
     });
@@ -39,7 +40,7 @@ export default async function Home() {
       
       {/* Top glowing accent light */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[350px] bg-gradient-to-b from-orange-200/10 via-orange-100/5 to-transparent dark:from-orange-500/5 dark:via-orange-950/2 to-transparent rounded-full blur-3xl pointer-events-none" />
-
+ 
       {/* Header */}
       <header className="bg-white/70 dark:bg-[#0C0B0A]/70 backdrop-blur-md border-b border-orange-100/20 dark:border-orange-950/20 sticky top-0 z-50 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">

@@ -11,17 +11,24 @@ if (!apiKey) {
 
 const firecrawl = new FirecrawlApp({ apiKey: apiKey || "" });
 
+export interface ScrapedProductData {
+  productName: string;
+  currentPrice: number;
+  currencyCode?: string;
+  productImageUrl?: string;
+  resolvedUrl: string;
+}
+
 /**
  * Resolves redirects for a given URL and returns the final destination URL.
  * Follows up to maxRedirects redirects.
  */
-async function resolveUrl(url, maxRedirects = 5) {
+async function resolveUrl(url: string, maxRedirects = 5): Promise<string> {
   return new Promise((resolve) => {
-    let currentUrl = url;
-    let redirectCount = 0;
+    const redirectCount = 0;
 
-    const follow = (targetUrl) => {
-      if (redirectCount >= maxRedirects) {
+    const follow = (targetUrl: string, count: number) => {
+      if (count >= maxRedirects) {
         resolve(targetUrl);
         return;
       }
@@ -40,17 +47,15 @@ async function resolveUrl(url, maxRedirects = 5) {
             },
           },
           (res) => {
-            // Abort reading the body to save bandwidth/time
             res.destroy();
 
-            if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-              redirectCount++;
+            if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
               let redirectUrl = res.headers.location;
               if (!redirectUrl.startsWith("http")) {
                 const urlObj = new URL(targetUrl);
                 redirectUrl = urlObj.origin + redirectUrl;
               }
-              follow(redirectUrl);
+              follow(redirectUrl, count + 1);
             } else {
               resolve(targetUrl);
             }
@@ -69,21 +74,19 @@ async function resolveUrl(url, maxRedirects = 5) {
       }
     };
 
-    follow(currentUrl);
+    follow(url, redirectCount);
   });
 }
 
 /**
  * Scrapes product information from a URL using Firecrawl's LLM extraction.
- * @param {string} url - The URL of the product to scrape.
- * @returns {Promise<{productName: string, currentPrice: number, currencyCode?: string, productImageUrl?: string, resolvedUrl: string}>}
+ * @param url - The URL of the product to scrape.
  */
-export async function scrapeProduct(url) {
+export async function scrapeProduct(url: string): Promise<ScrapedProductData> {
   if (!url) {
     throw new Error("Product URL is required");
   }
 
-  // Follow any redirects to get the canonical URL (critical for amzn.in, amzn.to, etc.)
   const resolvedUrl = await resolveUrl(url);
   console.log(`Scraping resolved product URL: ${resolvedUrl}`);
 
@@ -115,7 +118,7 @@ export async function scrapeProduct(url) {
         }
       }
     ]
-  });
+  }) as any;
 
   if (!response || (!response.json && !response.success)) {
     const errorMsg = response?.error || "Failed to scrape product data via Firecrawl";

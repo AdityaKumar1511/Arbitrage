@@ -5,20 +5,31 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
 import { scrapeProduct } from "@/lib/firecrawl";
 
+export interface AddProductResult {
+  success: boolean;
+  error?: string;
+  requireAuth?: boolean;
+  product?: any;
+}
+
+export interface DeleteProductResult {
+  success: boolean;
+  error?: string;
+}
+
 /**
  * Server Action to add a product URL, scrape it via Firecrawl, and insert it into Supabase.
- * @param {string} url - The product page URL
+ * @param url - The product page URL
  */
-export async function addProduct(url) {
+export async function addProduct(url: string): Promise<AddProductResult> {
   try {
     if (!url || !url.trim()) {
       return { success: false, error: "Please enter a product URL." };
     }
 
     // Basic URL validation
-    let parsedUrl;
     try {
-      parsedUrl = new URL(url);
+      const parsedUrl = new URL(url);
       if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
         throw new Error();
       }
@@ -44,7 +55,7 @@ export async function addProduct(url) {
     let scrapedData;
     try {
       scrapedData = await scrapeProduct(url);
-    } catch (scrapeErr) {
+    } catch (scrapeErr: any) {
       console.error("Firecrawl scraping failed:", scrapeErr);
       return {
         success: false,
@@ -137,8 +148,8 @@ export async function addProduct(url) {
 
     // Initialize admin client to bypass RLS policies on the price_history table
     const adminSupabase = createSupabaseAdminClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
     const { error: historyError } = await adminSupabase
@@ -156,7 +167,7 @@ export async function addProduct(url) {
       success: true,
       product: insertedProduct,
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Unexpected error in addProduct Server Action:", error);
     return {
       success: false,
@@ -167,9 +178,9 @@ export async function addProduct(url) {
 
 /**
  * Server Action to untrack/delete a product by its ID.
- * @param {string} id - The ID of the product to delete
+ * @param id - The ID of the product to delete
  */
-export async function deleteProduct(id) {
+export async function deleteProduct(id: string): Promise<DeleteProductResult> {
   try {
     if (!id) {
       return { success: false, error: "Product ID is required." };
@@ -203,7 +214,7 @@ export async function deleteProduct(id) {
     revalidatePath("/");
 
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Unexpected error in deleteProduct Server Action:", error);
     return {
       success: false,
