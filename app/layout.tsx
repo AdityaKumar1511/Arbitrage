@@ -22,7 +22,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" className={`${plusJakartaSans.variable} antialiased scroll-smooth`} suppressHydrationWarning>
       <body className="min-h-screen bg-[#FFFDF9] dark:bg-[#0C0B0A] text-gray-900 dark:text-gray-100 flex flex-col transition-colors duration-300 overflow-x-hidden">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           {children}
         </ThemeProvider>
       </body>

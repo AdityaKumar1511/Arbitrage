@@ -33,13 +33,13 @@ export function Footer() {
                 Product
               </h4>
               <div className="flex flex-col gap-2 text-sm">
-                <a href="#features" className="hover:text-orange-400 transition-colors duration-200">
+                <a href="/info#features" className="hover:text-orange-400 transition-colors duration-200">
                   Features
                 </a>
-                <a href="#pricing" className="hover:text-orange-400 transition-colors duration-200">
+                <a href="/info#pricing" className="hover:text-orange-400 transition-colors duration-200">
                   Pricing
                 </a>
-                <a href="#about" className="hover:text-orange-400 transition-colors duration-200">
+                <a href="/info#about" className="hover:text-orange-400 transition-colors duration-200">
                   How It Works
                 </a>
               </div>
@@ -51,10 +51,10 @@ export function Footer() {
                 Company
               </h4>
               <div className="flex flex-col gap-2 text-sm">
-                <a href="#about" className="hover:text-orange-400 transition-colors duration-200">
+                <a href="/info#about" className="hover:text-orange-400 transition-colors duration-200">
                   About
                 </a>
-                <a href="#contact" className="hover:text-orange-400 transition-colors duration-200">
+                <a href="/info#contact" className="hover:text-orange-400 transition-colors duration-200">
                   Contact
                 </a>
                 <a 
@@ -74,10 +74,10 @@ export function Footer() {
                 Legal
               </h4>
               <div className="flex flex-col gap-2 text-sm">
-                <a href="#privacy" className="hover:text-orange-400 transition-colors duration-200">
+                <a href="/info#privacy" className="hover:text-orange-400 transition-colors duration-200">
                   Privacy Policy
                 </a>
-                <a href="#terms" className="hover:text-orange-400 transition-colors duration-200">
+                <a href="/info#terms" className="hover:text-orange-400 transition-colors duration-200">
                   Terms of Service
                 </a>
               </div>
