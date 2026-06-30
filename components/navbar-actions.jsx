@@ -38,12 +38,12 @@ export function NavbarActions() {
       </button>
 
       {/* Sign In Button */}
-      <Button
+      {/* <Button
         className="group relative bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-400 dark:to-orange-500 hover:from-orange-400 hover:to-orange-500 dark:hover:from-orange-300 dark:hover:to-orange-400 text-white font-medium rounded-lg px-4 py-2 flex items-center gap-2 transition-all duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:shadow-orange-500/20 dark:hover:shadow-orange-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0C0B0A] cursor-pointer"
       >
         <LogIn className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-[2px]" />
         <span>Sign In</span>
-      </Button>
+      </Button> */}
     </div>
   );
 }

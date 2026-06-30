@@ -1,10 +1,14 @@
 import { NavbarActions } from "../components/navbar-actions";
 import { Footer } from "../components/footer";
 import { Zap, Shield, Bell, Link2 } from "lucide-react";
+import AuthButton from "@/components/AuthButton";
+import { createClient } from "@/lib/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#FFFDF9] via-[#FFFAF2] to-[#FFF8EE] dark:from-[#0C0B0A] dark:via-[#141311] dark:to-[#080706] flex flex-col relative overflow-hidden transition-colors duration-300">
+    <main className="min-h-screen bg-gradient-to-b from-[#FFFDF9] via-[#FFFAF2] to-[#FFF8EE] dark:from-[#0C0B0A] dark:via-[#141311] dark:to-[#080706] flex flex-col relative transition-colors duration-300">
       {/* Decorative background grid pattern */}
       <div className="absolute inset-0 bg-grid-pattern pointer-events-none opacity-80 dark:opacity-40" />
       
@@ -27,7 +31,10 @@ export default function Home() {
           </div>
 
           {/* Theme Toggle & Sign In Buttons */}
-          <NavbarActions />
+          <div className="flex items-center gap-1">
+            <NavbarActions />
+            <AuthButton user={user} />
+          </div>
         </div>
       </header>
 
