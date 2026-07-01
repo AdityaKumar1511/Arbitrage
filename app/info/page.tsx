@@ -185,8 +185,8 @@ export default async function InfoPage() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-400 dark:text-zinc-500 font-medium uppercase tracking-wider">Email</p>
-                  <a href="mailto:adityakumar1511official@gmail.com" className="text-sm font-semibold text-gray-800 dark:text-gray-200 hover:text-orange-500 transition-colors">
-                    adityakumar1511official@gmail.com
+                  <a href="mailto:aditya.kumar00706@gmail.com" className="text-sm font-semibold text-gray-800 dark:text-gray-200 hover:text-orange-500 transition-colors">
+                    aditya.kumar00706@gmail.com
                   </a>
                 </div>
               </div>
